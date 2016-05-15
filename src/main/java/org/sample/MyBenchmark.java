@@ -32,13 +32,72 @@
 package org.sample;
 
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
+
+/**
+ * MyBenchmark.testMethod  thrpt   20  10565734.727 ± 281054.846  ops/s - obfuscateTicket1
+ * MyBenchmark.testMethod  thrpt   20   2162855.703 ±  35550.870  ops/s - obfuscateTicket2
+ * MyBenchmark.testMethod  thrpt   20  18105341.613 ± 273598.727  ops/s - obfuscateTicket3
+ */
 
 public class MyBenchmark {
 
+    private static final String OBSCURE_TKT = "******";
+    private static final String ticket = "AB-999-QWiiiilt87lz76pou7tqqp";
+
     @Benchmark
     public void testMethod() {
-        // This is a demo/sample template for building your JMH benchmarks. Edit as needed.
-        // Put your benchmark code here.
+        MyBenchmark.obfuscateTicket1(ticket);
+//        MyBenchmark.obfuscateTicket2(ticket);
+//        MyBenchmark.obfuscateTicket3(ticket);
+    }
+
+    public static String obfuscateTicket1(String ticket) {
+        if (null == ticket) {
+            return ticket;
+        }
+
+        if (ticket.length() > 20) {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(ticket.substring(0, 10)).append(OBSCURE_TKT).append(ticket.substring(16));
+            return buffer.toString();
+        }
+        return ticket;
+    }
+
+
+    public static String obfuscateTicket2(String ticket) {
+        if (null == ticket) {
+            return ticket;
+        }
+        if (ticket.length() > 20) {
+            return ticket.replace(ticket.substring(10, 16), OBSCURE_TKT);
+        }
+        return ticket;
+    }
+
+    public static String obfuscateTicket3(String ticket) {
+        if (null == ticket) {
+            return ticket;
+        }
+
+        if (ticket.length() > 20) {
+            StringBuffer buffer = new StringBuffer(ticket);
+            return buffer.replace(10, 16, OBSCURE_TKT).toString();
+        }
+        return ticket;
+    }
+
+    public static void main(String[] args) throws RunnerException {
+
+        Options opt = new OptionsBuilder()
+                .include(MyBenchmark.class.getSimpleName())
+                .forks(1)
+                .build();
+        new Runner(opt).run();
     }
 
 }
